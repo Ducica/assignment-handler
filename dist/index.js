@@ -29,6 +29,7 @@ function createHandler(ttl, fetchFunc) {
             const id = parseInt(req.query.id);
             if (!isNaN(id) && id > 0) {
                 if (cache[id] && Date.now() - cache[id].timestamp <= ttl) {
+                    console.log("returning from cache");
                     const _a = cache[id], { timestamp } = _a, responseWithoutTimestamp = __rest(_a, ["timestamp"]);
                     res.status(200).json(responseWithoutTimestamp);
                     return;
@@ -102,11 +103,5 @@ const findLargestTimeDifference = (arr) => {
     };
 };
 exports.findLargestTimeDifference = findLargestTimeDifference;
-console.log((0, exports.findLargestTimeDifference)([
-    { price: 1, time: new Date("2023-01-01") },
-    { price: 0, time: new Date("2023-01-02") },
-    { price: 1, time: new Date("2023-01-03") },
-    { price: 1, time: new Date("2023-01-06") },
-]));
-module.exports = { createHandler };
+module.exports = createHandler;
 //# sourceMappingURL=index.js.map
