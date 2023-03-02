@@ -25,7 +25,6 @@ function createHandler(ttl: number, fetchFunc: any) {
     const id = parseInt(req.query.id as string);
     if (!isNaN(id) && id > 0) {
       if (cache[id] && Date.now() - cache[id].timestamp <= ttl) {
-        console.log("returning from cache");
         const { timestamp, ...responseWithoutTimestamp } = cache[id];
         res.status(200).json(responseWithoutTimestamp);
         return;
