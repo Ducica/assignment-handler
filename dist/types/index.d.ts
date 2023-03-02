@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-declare type FetchResult = {
+type FetchResult = {
     price: number;
     time: Date;
 }[];
-declare type LargestTimeDifference = {
+type LargestTimeDifference = {
     largestDifference: number;
     item1: Date;
     item2: Date;
