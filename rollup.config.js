@@ -9,13 +9,13 @@ export default {
   input: "./src/index.ts",
   output: [
     {
-      file: "./dist/index.cjs.js",
+      file: "./dist/cjs/index.js",
       format: "cjs",
       sourcemap: true,
       plugins: [terser()],
     },
     {
-      file: "./dist/index.esm.js",
+      file: "./dist/esm/index.js",
       format: "esm",
       sourcemap: true,
       plugins: [terser()],
