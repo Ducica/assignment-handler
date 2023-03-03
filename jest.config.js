@@ -1,8 +1,16 @@
 module.exports = {
   preset: "ts-jest",
+  globals: {
+    extensionsToTreatAsEsm: [".ts"],
+    "ts-jest": {
+      useESM: true,
+    },
+  },
   testEnvironment: "node",
   transform: {
-    "^.+\\.ts?$": "ts-jest",
+    "^.+\\.(ts|tsx|js|jsx)?$": "ts-jest",
+    //"^.+\\.tsx?$": "ts-jest",
   },
-  transformIgnorePatterns: ["<rootDir>/node_modules/"],
+
+  transformIgnorePatterns: [],
 };

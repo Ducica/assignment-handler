@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
 type FetchResult = { price: number; time: Date }[];
 type LargestTimeDifference = {
@@ -17,11 +17,12 @@ type ResponseType = {
   };
   timestamp: number;
 };
-function createHandler(ttl: number, fetchFunc: any) {
-  const cache: { [key: string]: ResponseType } = {};
-  let lastFetchTime: number = 0; // Time of last fetch
 
-  return async function (req: Request, res: Response, next: NextFunction) {
+type FetchFunction = (id: number) => Promise<FetchResult>;
+function createHandler(ttl: number, fetchFunc: FetchFunction) {
+  const cache: { [key: string]: ResponseType } = {};
+  const lock: { [key: string]: boolean } = {};
+  return async function (req: Request, res: Response) {
     const id = parseInt(req.query.id as string);
     if (!isNaN(id) && id > 0) {
       if (cache[id] && Date.now() - cache[id].timestamp <= ttl) {
@@ -29,16 +30,29 @@ function createHandler(ttl: number, fetchFunc: any) {
         res.status(200).json(responseWithoutTimestamp);
         return;
       }
+      while (lock[id]) {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+      lock[id] = true;
       const result = await fetchFunc(id);
 
       const filteredArray = getFilteredArray(result);
+      if (filteredArray.length <= 1) {
+        const response = {
+          success: true,
+          error: null,
+          result: {
+            range: null,
+          },
+        };
+        res.status(200).json(response);
+        lock[id] = false;
+      }
+
       const timeDifferenceResult: LargestTimeDifference =
         findLargestTimeDifference(sortByTime(filteredArray));
-      if (
-        timeDifferenceResult.largestDifference === 0 ||
-        filteredArray.length <= 1
-      ) {
-        let response = {
+      if (timeDifferenceResult.largestDifference === 0) {
+        const response = {
           success: true,
           error: null,
           result: {
@@ -47,8 +61,9 @@ function createHandler(ttl: number, fetchFunc: any) {
         };
         cache[id] = { ...response, timestamp: Date.now() };
         res.status(200).json(response);
+        lock[id] = false;
       } else {
-        let response = {
+        const response = {
           success: true,
           error: null,
           result: {
@@ -60,6 +75,7 @@ function createHandler(ttl: number, fetchFunc: any) {
         };
         cache[id] = { ...response, timestamp: Date.now() };
         res.status(200).json(response);
+        lock[id] = false;
       }
     } else {
       res.status(400).json({
@@ -108,4 +124,4 @@ export const findLargestTimeDifference = (
 };
 
 export { createHandler };
-module.exports = createHandler;
+// module.exports = createHandler;
