@@ -29,10 +29,8 @@
   "scripts": {
     "test": "jest",
     "dev": "nodemon dist/index.js",
-    "lint": "eslint . --ext .ts",
-    "build": "tsc",
-    "prepublishOnly": "npm-run-all build",
-    "postinstall": "npm run build"
+    "build": "rollup -c",
+    "lint": "eslint . --ext .ts"
   },
   "author": "",
   "license": "ISC",
